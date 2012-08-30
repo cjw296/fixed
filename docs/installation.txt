@@ -1,0 +1,26 @@
+Installation Instructions
+=========================
+
+The easiest way to install :mod:`fixed` is::
+
+  easy_install fixed
+
+Or, if you're using `zc.buildout`, just specify :mod:`fixed` as a
+required egg. 
+
+If you're developing a package or application that relies on fixed,
+then add it as a dependency in your package's :file:`setup.py`, for example::
+
+  from setuptools import setup, find_packages
+
+  setup(
+     # ...
+    install_requires = [
+        'fixed',
+       ])
+
+
+.. topic:: Python version requirements
+
+  This package has been tested with Python 2.6 and 2.7 on Linux,
+  Mac OS X and Windows.

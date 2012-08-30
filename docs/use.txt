@@ -1,0 +1,14 @@
+Usage Documentation
+===================
+
+- using nametuple type to discriminate
+
+- gaps in records
+
+- type conversion
+
+- constants
+
+- parsing one line
+
+- unknown line handling

@@ -1,0 +1,9 @@
+Changes
+=======
+
+.. currentmodule:: fixed
+
+X.X.X (XX XXX XXXX)
+------------------------
+
+- Initial Release

@@ -1,0 +1,10 @@
+=====
+fixed
+=====
+
+This package provides tools for building fast parsers of files
+composed of fields width records where one of the fields in the record
+specifies what type of record the line is.
+
+The parsers built using this package yield named tuples containing the
+information in each row.
