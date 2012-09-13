@@ -12,3 +12,5 @@ Usage Documentation
 - parsing one line
 
 - unknown line handling
+
+- sparse parsing of rows (start param to fields)

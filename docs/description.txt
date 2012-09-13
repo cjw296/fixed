@@ -8,3 +8,22 @@ specifies what type of record the line is.
 
 The parsers built using this package yield named tuples containing the
 information in each row.
+
+The parsers are specified using a simple and succinct declarative
+style:
+
+::
+
+  from fixed import Parser, Record, Field, Discriminator, Skip
+
+  class Header(Record):
+      type = Discriminator('H')
+      row_count = Field(8, int)
+      
+  class Data(Record):
+      type = Discriminator('D')
+      source = Field(5)
+      junk = Skip(10)
+      destination = Field(5)
+
+   parser = Parser(Header, Data)
