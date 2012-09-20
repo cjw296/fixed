@@ -74,3 +74,59 @@ class one_of(dict):
     def __call__(self, text):
         return self[text]
 
+# record type
+
+class RecordMeta(type):
+
+    def __init__(cls, class_name, bases, elements):
+        if bases==(object,):
+            return
+        
+        specs = []
+        for name, obj in elements.items():
+            if isinstance(obj, Ordered):
+                obj.name = name
+                specs.append(obj)
+        specs.sort(key=attrgetter('order'))
+
+        index = 0
+        discriminator = []
+        type_fields = []
+        cls.fields = []
+        
+        for obj in specs:
+            if isinstance(obj, Skip):
+                index += obj.size
+            else:
+                if obj.start is not None:
+                    index = obj.start
+                next_index = index + obj.size
+                type_fields.append(obj.name)
+                cls.fields.append((slice(index, next_index), obj.convertor))
+
+                if isinstance(obj, Discriminator):
+                    obj.slice = slice(index, next_index)
+                    discriminator.append(obj)
+                    
+                index = next_index
+
+        if len(discriminator)>1:
+            raise TypeError(
+                'Multiple discriminators are not supported, found: %r' % (
+                    [d.name for d in discriminator]
+                    ))
+        if not discriminator:
+            raise TypeError('No discriminator specified')
+        cls.disc = discriminator[0]
+        cls.type = namedtuple(class_name+'Record', type_fields)
+
+class Record(object):
+    
+    __metaclass__ = RecordMeta
+
+    def __new__(self, line):
+        return self.type(*(
+            line[s] if convert is None else convert(line[s])
+            for s, convert in self.fields
+            ))
+    
