@@ -41,6 +41,8 @@ class Skip(Ordered):
     def __init__(self, size):
         self.size = size
 
+# constants
+
 class Constant(object):
     def __init__(self, text, description=None):
         self.text = text
@@ -63,7 +65,7 @@ class one_of(dict):
             attr = _attr_re.sub('_', const.description).strip('_')
             self.attrs[attr] = const
         for attr, const in kw.items():
-            self[const.text] = consts
+            self[const.text] = const
             self.attrs[attr] = const
 
     def __setitem__(self, text, value):

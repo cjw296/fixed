@@ -48,10 +48,17 @@ class TestConstants(TestCase):
         compare(repr(c), '<X>')
         compare(str(c), 'X')
 
-    def test_one_of(self):
+    def test_one_of_args(self):
         x = Constant('X')
         y = Constant('Y')
         convertor = one_of(x, y)
+        self.assertTrue(convertor('X') is x)
+        self.assertTrue(convertor('Y') is y)
+
+    def test_one_of_kw(self):
+        x = Constant('X')
+        y = Constant('Y')
+        convertor = one_of(x=x, y=y)
         self.assertTrue(convertor('X') is x)
         self.assertTrue(convertor('Y') is y)
 
