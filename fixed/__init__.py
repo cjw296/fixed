@@ -109,10 +109,11 @@ class RecordMeta(type):
                     index = obj.start
                 next_index = index + obj.size
                 type_fields.append(obj.name)
-                cls.fields.append((slice(index, next_index), obj.convertor))
+                s = slice(index, next_index)
+                cls.fields.append((s, obj.convertor))
 
                 if isinstance(obj, Discriminator):
-                    obj.slice = slice(index, next_index)
+                    obj.slice = s
                     discriminator.append(obj)
                     
                 index = next_index
