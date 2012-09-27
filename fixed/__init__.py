@@ -120,7 +120,7 @@ class RecordMeta(type):
         if not discriminator:
             raise TypeError('No discriminator specified')
         cls.disc = discriminator[0]
-        cls.type = namedtuple(class_name+'Record', type_fields)
+        cls.type = namedtuple(class_name+'Type', type_fields)
 
 class Record(object):
     

@@ -21,7 +21,7 @@ class TestRecord(TestCase):
                 
         tuple_type = Normal.type
         self.assertTrue(issubclass(tuple_type, tuple))
-        compare(tuple_type.__name__, 'NormalRecord')
+        compare(tuple_type.__name__, 'NormalType')
 
         compare(Normal.id.name, 'id')
         compare(Normal.data.name, 'data')
@@ -44,7 +44,7 @@ class TestRecord(TestCase):
         
         tuple_type = Normal.type
         self.assertTrue(issubclass(tuple_type, tuple))
-        compare(tuple_type.__name__, 'NormalRecord')
+        compare(tuple_type.__name__, 'NormalType')
 
         compare(Normal.id.name, 'id')
         compare(Normal.data.name, 'data')
@@ -69,7 +69,7 @@ class TestRecord(TestCase):
                 
         tuple_type = Normal.type
         self.assertTrue(issubclass(tuple_type, tuple))
-        compare(tuple_type.__name__, 'NormalRecord')
+        compare(tuple_type.__name__, 'NormalType')
 
         compare(Normal.junk.name, 'junk')
         compare(Normal.id.name, 'id')
@@ -91,7 +91,7 @@ class TestRecord(TestCase):
                 
         tuple_type = Normal.type
         self.assertTrue(issubclass(tuple_type, tuple))
-        compare(tuple_type.__name__, 'NormalRecord')
+        compare(tuple_type.__name__, 'NormalType')
 
         compare(Normal.id.name, 'id')
         compare(Normal.data.name, 'data')
