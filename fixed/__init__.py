@@ -33,9 +33,14 @@ class Field(Ordered):
                 
 
 class Discriminator(Field):
+    slice = slice(None, None)
     def __init__(self, text, *args, **kw):
         super(Discriminator, self).__init__(len(text), *args, **kw)
         self.text = text
+    def __repr__(self):
+        return '<Discriminator %r (%s-%s)>' % (
+            self.text, self.slice.start, self.slice.stop
+            )
 
 class Skip(Ordered):
     def __init__(self, size):
