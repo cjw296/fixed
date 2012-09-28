@@ -137,4 +137,35 @@ class Record(object):
             line[s] if convert is None else convert(line[s])
             for s, convert in self.fields
             ))
+# exceptions
+class FixedException(Exception):
+
+    __slots__ = ()
+    
+    def __len__(self):
+        return len(self.__slots__)
+    
+    def __getitem__(self, index):
+        return getattr(self, self.__slots__[index])
+
+    def __repr__(self):
+        return '<%s %s>' % (
+            self.__class__.__name__,
+            ', '.join(
+                ['%s=%r' % (name, getattr(self, name))
+                 for name in self.__slots__]
+                ))
+            
+class UnknownRecordType(FixedException):
+    __slots__ = ('discriminator', 'line')
+    def __init__(self, discriminator, line):
+        self.discriminator, self.line = discriminator, line
+      
+
+class ConversionError(FixedException):
+    __slots__ = ('problems', 'line')
+    def __init__(self, problems, line):
+        self.problems, self.line = problems, line
+
+
     
