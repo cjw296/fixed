@@ -201,4 +201,55 @@ class ConversionError(FixedException):
         self.problems, self.line = problems, line
 
 
+# parser type
+class ParserMeta(type):
+
+    def __new__(cls, class_name, bases, dict_):
+        dict_['record_mapping'] = record_mapping = {}
+        discs = {}
+        for name, obj in dict_.items():
+            if isinstance(obj, type) and issubclass(obj, Record):
+                disc = obj.disc
+                discs[disc.slice.start, disc.slice.stop] = disc
+                record_mapping[disc.text] = obj
+        discs = discs.values()
+        if len(discs)>1:
+            raise TypeError('Inconsistent discriminators: %r' % discs)
+        if discs:
+            dict_['disc_slice'] = discs[0].slice
+        return type.__new__(cls, class_name, bases, dict_)
+
+class Parser(object):
+
+    __metaclass__ = ParserMeta
     
+    def __init__(self, iterable):
+        self.iterable = iterable
+
+    def __iter__(self):
+        # NB: this will always return an object for each record in the
+        #     file, so enumerate can reliably be used to figure out
+        #     line numbers if needed
+        for row in self.iterable:
+            disc = row[self.disc_slice]
+            record_type = self.record_mapping.get(disc)
+            if record_type is None:
+                yield UnknownRecordType(disc, row)
+                continue
+            try:
+                yield record_type(row)
+            except Exception:
+                yield record_type.explain(row)
+
+class Chunker(object):
+
+    def __init__(self, stream, width):
+        self.stream = stream
+        self.width = width
+
+    def __iter__(self):
+        while True:
+            data = self.stream.read(self.width)
+            if len(data) < self.width:
+                break
+            yield data
