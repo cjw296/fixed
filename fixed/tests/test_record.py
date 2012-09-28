@@ -3,7 +3,7 @@
 
 from unittest import TestCase
 
-from testfixtures import ShouldRaise, compare
+from testfixtures import Comparison as C, ShouldRaise, compare
 
 from .. import Discriminator, Record, Field, Discriminator, Skip
 
@@ -28,6 +28,29 @@ class TestRecord(TestCase):
         
         result = Normal('N 2')
         compare(tuple_type(id='N', data=2), result, strict=True)
+        
+    def test_explain(self):
+
+        class Normal(Record):
+            id = Discriminator('N')
+            data  = Field(2, int)
+
+        # okay
+        result = Normal.explain('N 2')
+        compare(Normal.type(id='N', data=2), result, strict=True)
+        
+        # conversion error
+        result = Normal.explain('NXX')
+        C('fixed.ConversionError',
+          args=(),
+          problems=dict(data=C(
+              'fixed.Problem',
+              raw='XX',
+              convert=int,
+              exception=C(
+                  ValueError,
+                  args=("invalid literal for int() with base 10: 'XX'", ),
+                  ))))
         
     def test_discriminator_not_first(self):
 

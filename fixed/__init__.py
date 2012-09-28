@@ -133,10 +133,43 @@ class Record(object):
     __metaclass__ = RecordMeta
 
     def __new__(self, line):
+        # fast
         return self.type(*(
             line[s] if convert is None else convert(line[s])
             for s, convert in self.fields
             ))
+
+    @classmethod
+    def explain(cls, line):
+        # safe and verbose, but slow
+        problems = {}
+        elements = []
+        for name, field in zip(cls.type._fields, cls.fields):
+            s, convert = field
+            raw = line[s]
+            try:
+                value = (convert or str)(line[s])
+            except Exception, e:
+                problems[name] = Problem(raw, convert, e)
+            else:
+                elements.append(value)
+        if problems:
+            return ConversionError(problems, line)
+        return cls.type(*elements)
+
+class Problem(object):
+
+    def __init__(self, raw, convert, exception):
+        self.raw, self.convert, self.exception = (
+            raw, convert, exception
+            )
+    def __str__(self):
+        return 'Could not convert %r using %r, gave %r' % (
+            self.raw, self.convert, self.exception
+            )
+    def __repr__(self):
+        return '<Problem: %s>' % self
+
 # exceptions
 class FixedException(Exception):
 
