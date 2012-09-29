@@ -41,6 +41,12 @@ class TestConstants(TestCase):
         compare(repr(c), '<Execution>')
         compare(str(c), 'X')
     
+    def test_equal(self):
+        self.assertFalse(Constant('A', 'X')==Constant('A', 'Y'))
+        
+    def test_identity(self):
+        self.assertFalse(Constant('A', 'X') is Constant('A', 'X'))
+
     def test_default_description(self):
         c = Constant('X')
         compare(c.text, 'X')
