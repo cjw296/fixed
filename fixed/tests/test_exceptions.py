@@ -25,6 +25,12 @@ class TestUnknown(TestCase):
             "<UnknownRecordType discriminator='X', line='XYZ'>"
             )
     
+    def test_str(self):
+        self.assertEqual(
+            str(self.e),
+            "discriminator='X', line='XYZ'"
+            )
+    
 class TestConversionError(TestCase):
 
     def setUp(self):
@@ -46,6 +52,12 @@ class TestConversionError(TestCase):
         self.assertEqual(
             repr(self.e),
             "<ConversionError problems={'foo': 'x'}, line='XYZ'>"
+            )
+
+    def test_str(self):
+        self.assertEqual(
+            str(self.e),
+            "problems={'foo': 'x'}, line='XYZ'"
             )
     
 class TestProblem(TestCase):

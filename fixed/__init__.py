@@ -181,13 +181,16 @@ class FixedException(Exception):
     def __getitem__(self, index):
         return getattr(self, self.__slots__[index])
 
+    def __str__(self):
+        return ', '.join(
+                ['%s=%r' % (name, getattr(self, name))
+                 for name in self.__slots__]
+                )
     def __repr__(self):
         return '<%s %s>' % (
             self.__class__.__name__,
-            ', '.join(
-                ['%s=%r' % (name, getattr(self, name))
-                 for name in self.__slots__]
-                ))
+            str(self),
+            )
             
 class UnknownRecordType(FixedException):
     __slots__ = ('discriminator', 'line')
