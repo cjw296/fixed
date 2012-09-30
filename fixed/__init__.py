@@ -210,17 +210,22 @@ class ParserMeta(type):
     def __new__(cls, class_name, bases, dict_):
         dict_['record_mapping'] = record_mapping = {}
         discs = {}
+        records = []
         for name, obj in dict_.items():
             if isinstance(obj, type) and issubclass(obj, Record):
                 disc = obj.disc
                 discs[disc.slice.start, disc.slice.stop] = disc
+                records.append(obj)
                 record_mapping[disc.text] = obj
         discs = discs.values()
         if len(discs)>1:
             raise TypeError('Inconsistent discriminators: %r' % discs)
         if discs:
             dict_['disc_slice'] = discs[0].slice
-        return type.__new__(cls, class_name, bases, dict_)
+        parser = type.__new__(cls, class_name, bases, dict_)
+        for record in records:
+            record._parser = parser
+        return parser
 
 class Parser(object):
 
@@ -244,6 +249,8 @@ class Parser(object):
             except Exception:
                 yield record_type.explain(row)
 
+# helpers
+
 class Chunker(object):
 
     def __init__(self, stream, width):
@@ -256,3 +263,45 @@ class Chunker(object):
             if len(data) < self.width:
                 break
             yield data
+
+class HandlerMeta(type):
+    
+    def __new__(cls, class_name, bases, dict_):
+        dict_['handlers'] = handlers = {}
+        discs = {}
+        for name, obj in dict_.items():
+            handles = getattr(obj, '__handles__', ())
+            for thing in handles:
+                if isinstance(thing, type) and issubclass(thing, FixedException):
+                    handlers[thing] = obj
+                else:
+                    handlers[thing.type] = obj
+                    dict_['parser'] = thing._parser
+        return type.__new__(cls, class_name, bases, dict_)
+
+class Handler(object):
+
+    __metaclass__ = HandlerMeta
+    
+    def handle(self, iterable):
+        for record in self.handled(iterable):
+            pass
+              
+    def handled(self, iterable):
+        for i, record in enumerate(self.parser(iterable)):
+            handler = self.handlers.get(record.__class__)
+            if handler is not None:
+                yield handler(self, iterable, i+1, record)
+            elif isinstance(record, Exception):
+                raise record
+
+class handles(object):
+    def __init__(self, type):
+        self.type = type
+    def __call__(self, method):
+        if getattr(method, '__handles__', None) is None:
+            method.__handles__ = []
+        method.__handles__.append(self.type)
+        return method
+    
+    
