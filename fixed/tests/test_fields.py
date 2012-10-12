@@ -97,6 +97,14 @@ class TestConstants(TestCase):
         with ShouldRaise(TypeError("<XX> does not have a size of 1")):
             Field(1, one_of(Constant('XX')))
 
+    def test_field_different_widths_okay(self):
+        # provide a way to turn off size checking for subclasses
+        # (such as where a field contains one of more
+        #  single character constants)
+        class my_one_of(one_of):
+            size_check = False
+        Field(1, my_one_of(Constant('XX')))
+
 class TestDiscriminator(TestCase):
 
     def test_default_attributes(self):

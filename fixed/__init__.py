@@ -25,7 +25,7 @@ class Field(Ordered):
             for attr, const in convertor.attrs.items():
                 if attr in self.__dict__:
                     raise AttributeError('Constant cannot be stored as %r' % attr)
-                if len(const.text) != self.size:
+                if (len(const.text) != self.size) and convertor.size_check:
                     raise TypeError('%r does not have a size of %i' % (
                         const, self.size
                         ))
@@ -60,6 +60,8 @@ class Constant(object):
 _attr_re = re.compile('\W+')
 
 class one_of(dict):
+
+    size_check = True
     
     def __init__(self, *consts, **kw):
         self.attrs = {}
