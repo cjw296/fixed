@@ -233,8 +233,9 @@ class Parser(object):
 
     __metaclass__ = ParserMeta
     
-    def __init__(self, iterable):
+    def __init__(self, iterable, parse_unknown=True):
         self.iterable = iterable
+        self.parse_unknown = parse_unknown
 
     def __iter__(self):
         # NB: this will always return an object for each record in the
@@ -244,7 +245,8 @@ class Parser(object):
             disc = row[self.disc_slice]
             record_type = self.record_mapping.get(disc)
             if record_type is None:
-                yield UnknownRecordType(disc, row)
+                if self.parse_unknown:
+                    yield UnknownRecordType(disc, row)
                 continue
             try:
                 yield record_type(row)
@@ -284,13 +286,17 @@ class HandlerMeta(type):
 class Handler(object):
 
     __metaclass__ = HandlerMeta
+
+    parse_unknown = True
     
     def handle(self, iterable):
         for record in self.handled(iterable):
             pass
               
     def handled(self, iterable):
-        for i, record in enumerate(self.parser(iterable)):
+        for i, record in enumerate(self.parser(
+            iterable, self.parse_unknown
+            )):
             handler = self.handlers.get(record.__class__)
             if handler is not None:
                 yield handler(self, iterable, i+1, record)

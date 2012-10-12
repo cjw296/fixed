@@ -105,6 +105,22 @@ class TestHandlers(TestCase):
                           args=())),
             ))
         
+    def test_ignore_unknown_rows(self):
+        class MyHandler(Handler):
+            # the magic line:
+            parse_unknown = False
+            # stuff for testing:
+            @handles(self.parser.ARecord)
+            def handle_ARecord(self, rec):
+                pass
+            @handles(fixed.UnknownRecordType)
+            def handle_unknown(self, source, line_no, rec):
+                return source, line_no, rec
+
+        handler = MyHandler()
+        source = ['CYY']
+        compare(generator(), handler.handled(source))
+        
     def test_method_handles_multiple_types(self):
 
         class MyHandler(Handler):

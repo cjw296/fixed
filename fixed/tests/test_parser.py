@@ -150,6 +150,13 @@ class TestParser(TestCase):
               args=())
             ), self.parser(['CXX']))
 
+    def test_unknown_record_type_ignore(self):
+        # Creating UnknownRecordType objects is expensive if
+        # we're deliberately only creating Records for a small
+        # number of rows in a file.
+        compare(generator(),
+                self.parser(['CXX'], parse_unknown=False))
+
     def test_short_lines_for_disc(self):
         compare(generator(
             C('fixed.UnknownRecordType',
