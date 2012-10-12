@@ -229,13 +229,24 @@ class ParserMeta(type):
             record._parser = parser
         return parser
 
+ignore = object()
+
 class Parser(object):
 
     __metaclass__ = ParserMeta
     
-    def __init__(self, iterable, parse_unknown=True):
+    def __init__(self, iterable, parse_only=None, parse_unknown=True):
         self.iterable = iterable
         self.parse_unknown = parse_unknown
+        if parse_only:
+            record_mapping = {}
+            for k, type in self.record_mapping.items():
+                if type in parse_only:
+                    t = type
+                else:
+                    t = ignore
+                record_mapping[k] = t
+            self.record_mapping = record_mapping
 
     def __iter__(self):
         # NB: this will always return an object for each record in the
@@ -247,6 +258,8 @@ class Parser(object):
             if record_type is None:
                 if self.parse_unknown:
                     yield UnknownRecordType(disc, row)
+                continue
+            elif record_type is ignore:
                 continue
             try:
                 yield record_type(row)
@@ -272,6 +285,7 @@ class HandlerMeta(type):
     
     def __new__(cls, class_name, bases, dict_):
         dict_['handlers'] = handlers = {}
+        dict_['parse_only'] = parse_only = []
         discs = {}
         for name, obj in dict_.items():
             handles = getattr(obj, '__handles__', ())
@@ -281,6 +295,7 @@ class HandlerMeta(type):
                 else:
                     handlers[thing.type] = obj
                     dict_['parser'] = thing._parser
+                    parse_only.append(thing)
         return type.__new__(cls, class_name, bases, dict_)
 
 class Handler(object):
@@ -295,7 +310,7 @@ class Handler(object):
               
     def handled(self, iterable):
         for i, record in enumerate(self.parser(
-            iterable, self.parse_unknown
+            iterable, self.parse_only, self.parse_unknown
             )):
             handler = self.handlers.get(record.__class__)
             if handler is not None:

@@ -74,6 +74,11 @@ class TestParser(TestCase):
                     self.parser.BRecord.type('B', 'YY'),
                     ), self.parser(source))
                 
+    def test_parse_only(self):
+        compare(generator(
+            self.parser.ARecord.type('A', 'XX'),
+            ), self.parser(['AXX', 'BXX'], parse_only=[self.parser.ARecord]))
+
     def test_fixed_width(self):
         # make sure file wrapped with iterator works
         with TempDirectory() as dir:
