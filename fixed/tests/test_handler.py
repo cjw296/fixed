@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from testfixtures import Comparison as C, ShouldRaise
+from testfixtures import Comparison as C, ShouldRaise, generator, compare
 
 from ..import Parser, Record, Field, Discriminator, Handler, handles
 import fixed
@@ -37,7 +37,7 @@ class TestHandlers(TestCase):
         # or a Chunker.
         source = ['AXX', 'BYY']
         handler.handle(source)
-        self.assertEqual(handler.called, [
+        compare(handler.called, [
             ('A', source, 1, self.parser.ARecord.type('A', 'XX')),
             ('B', source, 2, self.parser.BRecord.type('B', 'YY')),
             ])
@@ -59,10 +59,10 @@ class TestHandlers(TestCase):
         # or a Chunker.
         source = ['AXX', 'BYY']
         handler.handle(source)
-        self.assertEqual(tuple(handler.handled(source)), (
+        compare(generator(
             ('A', source, 1, self.parser.ARecord.type('A', 'XX')),
             ('B', source, 2, self.parser.BRecord.type('B', 'YY')),
-            ))
+            ), handler.handled(source))
 
     def test_missing_handler(self):
         # ignore record
@@ -98,12 +98,12 @@ class TestHandlers(TestCase):
 
         handler = MyHandler()
         source = ['CYY']
-        self.assertEqual(tuple(handler.handled(source)), (
+        compare(generator(
             (source, 1, C('fixed.UnknownRecordType',
                           discriminator='C',
                           line='CYY',
                           args=())),
-            ))
+            ), handler.handled(source))
         
     def test_ignore_unknown_rows(self):
         class MyHandler(Handler):
@@ -133,7 +133,7 @@ class TestHandlers(TestCase):
         handler = MyHandler()
         source = ['AXX', 'BYY']
         handler.handle(source)
-        self.assertEqual(tuple(handler.handled(source)), (
+        compare(generator(
             (source, 1, self.parser.ARecord.type('A', 'XX')),
             (source, 2, self.parser.BRecord.type('B', 'YY')),
-            ))
+            ), handler.handled(source))
