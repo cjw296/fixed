@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from testfixtures import ShouldRaise, compare
 
-from .. import Discriminator, Field, Skip, Constant, one_of
+from .. import Discriminator, Field, Skip, Constant, one_of, all
 
 class TestField(TestCase):
 
@@ -84,6 +84,18 @@ class TestConstants(TestCase):
         self.assertTrue(f.foo is cx)
         self.assertTrue(f.bar_baz is cy)
         self.assertTrue(f.z is cz)
+
+    def test_all(self):
+        cx = Constant('X', 'foo')
+        cy = Constant('Y', 'bar & baz (&_)')
+        cz = Constant('Z')
+        f = Field(1, one_of(cy, cx, cz))
+        compare([cx, cy, cz], all(f))
+
+    def test_all_not_one_of(self):
+        f = Field(1)
+        with ShouldRaise(TypeError('convertor is None, not a one_of instance')):
+            all(f)
 
     def test_field_overwrite_attr(self):
         with ShouldRaise(AttributeError("Constant cannot be stored as 'size'")):

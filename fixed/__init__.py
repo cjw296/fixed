@@ -83,6 +83,16 @@ class one_of(dict):
     def __call__(self, text):
         return self[text]
 
+def all(field):
+    if not isinstance(field.convertor, one_of):
+        raise TypeError(
+            'convertor is %r, not a one_of instance' % field.convertor
+            )
+    result = []
+    for _, constant in sorted(field.convertor.items()):
+        result.append(constant)
+    return result
+
 # record type
 
 class RecordMeta(type):
